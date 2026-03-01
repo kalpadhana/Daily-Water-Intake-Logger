@@ -47,7 +47,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PASSWORD, password);
 
         long result = db.insert(TABLE_USERS, null, values);
-        db.close();
 
         return result != -1;
     }
@@ -66,7 +65,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         boolean exists = cursor.getCount() > 0;
 
         cursor.close();
-        db.close();
 
         return exists;
     }

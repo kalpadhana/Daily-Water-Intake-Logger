@@ -3,16 +3,21 @@ package com.example.water_logger;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity {
 
     private WaterLevelView waterView;
     private TextView tvRemaining, tvTargetMl, tvTargetPercent;
@@ -40,9 +45,13 @@ public class MainActivity extends AppCompatActivity {
         tvTargetMl = findViewById(R.id.tvTargetMl);
         tvTargetPercent = findViewById(R.id.tvTargetPercent);
 
-        findViewById(R.id.target_card).setOnClickListener(v -> showSetGoalDialog());
-        findViewById(R.id.reminder_card).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ReminderActivity.class);
+        LinearLayout targetCard = findViewById(R.id.target_card);
+        LinearLayout reminderCard = findViewById(R.id.reminder_card);
+
+        targetCard.setOnClickListener(v -> showSetGoalDialog());
+
+        reminderCard.setOnClickListener(v -> {
+            Intent intent = new Intent(DashboardActivity.this, ReminderActivity.class);
             startActivity(intent);
         });
 
@@ -58,8 +67,27 @@ public class MainActivity extends AppCompatActivity {
         btn300.setOnClickListener(v -> addMl(300));
 
         btnDrink.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, DrinkActivity.class);
+            Intent intent = new Intent(DashboardActivity.this, DrinkActivity.class);
             drinkActivityLauncher.launch(intent);
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.navigation_today) {
+                // Already on the dashboard, do nothing
+                return true;
+            } else if (itemId == R.id.navigation_history) {
+                startActivity(new Intent(DashboardActivity.this, HistoryActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_insights) {
+                startActivity(new Intent(DashboardActivity.this, InsightsActivity.class));
+                return true;
+            } else if (itemId == R.id.navigation_me) {
+                startActivity(new Intent(DashboardActivity.this, MeActivity.class));
+                return true;
+            }
+            return false;
         });
     }
 

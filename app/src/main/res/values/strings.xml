@@ -1,3 +1,36 @@
 <resources>
     <string name="app_name">Water_Logger</string>
+    <string name="good_day">Good day 👋</string>
+    <string name="stay_hydrated">Stay Hydrated!!</string>
+    <string name="target">Target</string>
+    <string name="target_ml">2000 ml</string>
+    <string name="target_percent">0%</string>
+    <string name="target_ml_format">%d ml</string>
+    <string name="target_percent_format">%d%% done</string>
+    <string name="next_reminder">Next Reminder</string>
+    <string name="reminder_time">20:00</string>
+    <string name="reminder_left">1h 15m left</string>
+    <string name="remaining_ml">%d ml remaining</string>
+    <string name="add_150ml">+150 ml</string>
+    <string name="add_250ml">+250 ml</string>
+    <string name="add_300ml">+300 ml</string>
+    <string name="drink">DRINK</string>
+    <string name="daily_goal">Daily Goal</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="drink_suggestion">Drink 200-300ml of water each time to stay well-hydrated.</string>
+    <string name="drink_label">water amount</string>
+    <string name="ml_unit">ml</string>
+    <string name="add_drink">+ DRINK</string>
+    <string name="close_button">Close button</string>
+    <string name="water_bottle_image">Water bottle image</string>
+    <string name="enter_water_amount">Enter water amount</string>
+    <string name="default_water_amount">200</string>
+    <string name="ml">ml</string>
+    <string name="drink_button">+ DRINK</string>
+    <string name="drink_now">DRINK NOW</string>
+
+
+
+
 </resources>
