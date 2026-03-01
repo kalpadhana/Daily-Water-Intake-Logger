@@ -6,12 +6,15 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "WaterApp.db";
-    private static final int DATABASE_VERSION = 4; // Incremented to trigger onUpgrade
+    private static final int DATABASE_VERSION = 5; // Incremented to trigger onUpgrade
 
     // Users table
     private static final String TABLE_USERS = "users";
@@ -27,13 +30,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_TIMESTAMP = "timestamp";
     private static final String COLUMN_AMOUNT = "amount";
 
+    // Daily Summary table
+    private static final String TABLE_DAILY_SUMMARY = "daily_summary";
+    private static final String COLUMN_SUMMARY_ID = "id";
+    private static final String COLUMN_DATE = "date";
+    private static final String COLUMN_IS_COMPLETED = "is_completed";
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS + " ("        
+        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS + " ("
                 + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + COLUMN_NAME + " TEXT, "
                 + COLUMN_EMAIL + " TEXT UNIQUE, "
@@ -46,6 +55,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_TIMESTAMP + " INTEGER, "
                 + COLUMN_AMOUNT + " INTEGER)";
         db.execSQL(CREATE_WATER_RECORDS_TABLE);
+
+        String CREATE_DAILY_SUMMARY_TABLE = "CREATE TABLE " + TABLE_DAILY_SUMMARY + " ("
+                + COLUMN_SUMMARY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + COLUMN_DATE + " TEXT UNIQUE, "
+                + COLUMN_IS_COMPLETED + " INTEGER DEFAULT 0)";
+        db.execSQL(CREATE_DAILY_SUMMARY_TABLE);
     }
 
     @Override
@@ -53,6 +68,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         db.execSQL("DROP TABLE IF EXISTS water_intake"); // Drop old table
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_WATER_RECORDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DAILY_SUMMARY);
         onCreate(db);
     }
 
@@ -144,5 +160,65 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return dailyIntake;
+
+    }
+    public int getTodayTotalIntake() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Get start of TODAY (midnight)
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        long startOfDay = calendar.getTimeInMillis();
+
+        // Get end of TODAY (11:59:59 PM)
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        long endOfDay = calendar.getTimeInMillis();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(amount) FROM water_records WHERE timestamp >= ? AND timestamp <= ?",
+                new String[]{String.valueOf(startOfDay), String.valueOf(endOfDay)}
+        );
+
+        int total = 0;
+        if (cursor.moveToFirst() && !cursor.isNull(0)) {
+            total = cursor.getInt(0);
+        }
+        cursor.close();
+        return total;
+    }
+
+    private String getTodayDateString() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        return dateFormat.format(new Date());
+    }
+
+    public void markDayAsCompleted() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String today = getTodayDateString();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DATE, today);
+        values.put(COLUMN_IS_COMPLETED, 1);
+        db.insertWithOnConflict(TABLE_DAILY_SUMMARY, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public boolean isDayCompleted() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String today = getTodayDateString();
+        Cursor cursor = db.rawQuery(
+                "SELECT " + COLUMN_IS_COMPLETED + " FROM " + TABLE_DAILY_SUMMARY + " WHERE " + COLUMN_DATE + " = ?",
+                new String[]{today}
+        );
+        boolean completed = false;
+        if (cursor.moveToFirst()) {
+            completed = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_IS_COMPLETED)) == 1;
+        }
+        cursor.close();
+        return completed;
     }
 }

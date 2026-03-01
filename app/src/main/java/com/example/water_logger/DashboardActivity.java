@@ -48,8 +48,8 @@ public class DashboardActivity extends AppCompatActivity {
         tvTargetMl = findViewById(R.id.tvTargetMl);
         tvTargetPercent = findViewById(R.id.tvTargetPercent);
 
-        LinearLayout targetCard = findViewById(R.id.target_card);
-        LinearLayout reminderCard = findViewById(R.id.reminder_card);
+        View targetCard = findViewById(R.id.target_card);
+        View reminderCard = findViewById(R.id.reminder_card);
 
         targetCard.setOnClickListener(v -> showSetGoalDialog());
 
@@ -63,8 +63,6 @@ public class DashboardActivity extends AppCompatActivity {
         Button btn300 = findViewById(R.id.btn300);
         Button btnDrink = findViewById(R.id.btnDrink);
 
-        updateUI();
-
         btn150.setOnClickListener(v -> addMl(150));
         btn250.setOnClickListener(v -> addMl(250));
         btn300.setOnClickListener(v -> addMl(300));
@@ -75,7 +73,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_today) {
                 // Already on the dashboard, do nothing
@@ -94,10 +92,18 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    private void addMl(int add) {
-        currentMl += add;
-        db.addWaterRecord(add); // Save the record
+    @Override
+    protected void onResume() {
+        super.onResume();
+        currentMl = db.getTodayTotalIntake();
         updateUI();
+    }
+
+    private void addMl(int add) {
+        db.addWaterRecord(add); // Save the record
+        currentMl = db.getTodayTotalIntake(); // Reload from database
+        updateUI();
+        checkIfGoalCompleted();
     }
 
     private void updateUI() {
@@ -147,5 +153,20 @@ public class DashboardActivity extends AppCompatActivity {
         dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private void checkIfGoalCompleted() {
+        if (currentMl >= targetMl && !db.isDayCompleted()) {
+            db.markDayAsCompleted();
+            showGoalCompletedDialog();
+        }
+    }
+
+    private void showGoalCompletedDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Goal Achieved!")
+                .setMessage("Congratulations! You\'ve reached your daily water intake goal.")
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .show();
     }
 }
