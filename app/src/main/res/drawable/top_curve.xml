@@ -1,0 +1,15 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Modern Gradient -->
+    <gradient
+        android:startColor="#4FACFE"
+        android:endColor="#00F2FE"
+        android:angle="135" />
+
+    <!-- Smooth Bigger Curve -->
+    <corners
+        android:bottomLeftRadius="60dp"
+        android:bottomRightRadius="60dp" />
+
+</shape>

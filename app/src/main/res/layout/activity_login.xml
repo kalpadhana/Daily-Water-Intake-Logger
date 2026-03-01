@@ -10,13 +10,15 @@
     <ImageView
         android:id="@+id/ivIllustration"
         android:layout_width="0dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="48dp"
-        android:contentDescription="@string/login_illustration_desc"
-        android:src="@drawable/ic_water_drop"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_height="220dp"
+        android:layout_marginTop="0dp"
+        android:src="@drawable/dcc"
+        android:scaleType="centerCrop"
+        android:background="@drawable/top_curve"
+        android:clipToOutline="true"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <TextView
         android:id="@+id/tvAppName"
