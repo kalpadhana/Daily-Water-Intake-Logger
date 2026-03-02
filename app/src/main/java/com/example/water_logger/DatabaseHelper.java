@@ -111,6 +111,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return userId;
     }
 
+    public Cursor getUserDetails(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT " + COLUMN_NAME + ", " + COLUMN_EMAIL + " FROM " + TABLE_USERS + " WHERE " + COLUMN_ID + "=?", new String[]{String.valueOf(userId)});
+    }
+
     // ---------- Water Records ----------
     public void addWaterRecord(int userId, int amount) {
         SQLiteDatabase db = this.getWritableDatabase();

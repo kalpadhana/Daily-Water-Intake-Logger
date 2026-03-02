@@ -3,6 +3,7 @@ package com.example.water_logger;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -26,6 +27,8 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final String PREFS_NAME = "WaterLoggerPrefs";
     private static final String KEY_USER_ID = "userId";
+    private static final String KEY_USERNAME = "username";
+    private static final String KEY_EMAIL = "email";
 
     private GoogleSignInClient mGoogleSignInClient;
     private Button btnSignInWithGoogle;
@@ -70,15 +73,27 @@ public class LoginActivity extends AppCompatActivity {
             int userId = db.getUserId(email, password);
 
             if (userId != -1) {
-                // Save user ID to SharedPreferences
+                // Fetch user details
+                Cursor cursor = db.getUserDetails(userId);
+                String username = "Username";
+                String userEmail = email;
+                if (cursor.moveToFirst()) {
+                    username = cursor.getString(0);
+                    userEmail = cursor.getString(1);
+                }
+                cursor.close();
+
+                // Save user ID, name, and email to SharedPreferences
                 SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                 editor.putInt(KEY_USER_ID, userId);
+                editor.putString(KEY_USERNAME, username);
+                editor.putString(KEY_EMAIL, userEmail);
                 editor.apply();
 
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(LoginActivity.this, GetStartedActivity.class);
                 startActivity(i);
-                finish(); // prevents going back to login when pressing back
+                finish();
             } else {
                 Toast.makeText(this, "Invalid Email or Password", Toast.LENGTH_SHORT).show();
             }
@@ -96,7 +111,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        // Result returned from launching the Intent from GoogleSignInClient.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             handleSignInResult(task);
@@ -106,11 +120,8 @@ public class LoginActivity extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            // Signed in successfully, show authenticated UI.
             updateUI(account);
         } catch (ApiException e) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
             Log.w(TAG, "signInResult:failed code=" + e.getStatusCode());
             updateUI(null);
         }
