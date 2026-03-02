@@ -12,11 +12,6 @@
         android:title="History" />
 
     <item
-        android:id="@+id/navigation_insights"
-        android:icon="@drawable/ic_insights"
-        android:title="Insights" />
-
-    <item
         android:id="@+id/navigation_me"
         android:icon="@drawable/ic_me"
         android:title="Me" />

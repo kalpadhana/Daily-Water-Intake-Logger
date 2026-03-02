@@ -27,9 +27,6 @@ public class MeActivity extends AppCompatActivity {
             } else if (itemId == R.id.navigation_history) {
                 startActivity(new Intent(MeActivity.this, HistoryActivity.class));
                 return true;
-            } else if (itemId == R.id.navigation_insights) {
-                startActivity(new Intent(MeActivity.this, InsightsActivity.class));
-                return true;
             } else if (itemId == R.id.navigation_me) {
                 // Already on this screen, do nothing
                 return true;

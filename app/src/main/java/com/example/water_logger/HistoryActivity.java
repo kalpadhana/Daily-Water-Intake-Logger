@@ -39,9 +39,6 @@ public class HistoryActivity extends AppCompatActivity {
             } else if (itemId == R.id.navigation_history) {
                 // Already on this screen, do nothing
                 return true;
-            } else if (itemId == R.id.navigation_insights) {
-                startActivity(new Intent(HistoryActivity.this, InsightsActivity.class));
-                return true;
             } else if (itemId == R.id.navigation_me) {
                 startActivity(new Intent(HistoryActivity.this, MeActivity.class));
                 return true;

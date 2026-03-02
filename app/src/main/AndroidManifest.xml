@@ -52,10 +52,6 @@
             android:exported="false" />
 
         <activity
-            android:name=".InsightsActivity"
-            android:exported="false" />
-
-        <activity
             android:name=".MeActivity"
             android:exported="false" />
         <activity

@@ -88,9 +88,6 @@ public class DashboardActivity extends AppCompatActivity {
             } else if (itemId == R.id.navigation_history) {
                 startActivity(new Intent(DashboardActivity.this, HistoryActivity.class));
                 return true;
-            } else if (itemId == R.id.navigation_insights) {
-                startActivity(new Intent(DashboardActivity.this, InsightsActivity.class));
-                return true;
             } else if (itemId == R.id.navigation_me) {
                 startActivity(new Intent(DashboardActivity.this, MeActivity.class));
                 return true;
