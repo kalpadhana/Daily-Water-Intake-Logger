@@ -1,5 +1,7 @@
 package com.example.water_logger;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,13 +21,16 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Locale;
 
 public class HistoryDayFragment extends Fragment {
 
     private DatabaseHelper db;
     private long currentDayMillis;
+    private int userId;
+
+    private static final String PREFS_NAME = "WaterLoggerPrefs";
+    private static final String KEY_USER_ID = "userId";
 
     @Nullable
     @Override
@@ -34,6 +39,9 @@ public class HistoryDayFragment extends Fragment {
 
         db = new DatabaseHelper(getContext());
         currentDayMillis = System.currentTimeMillis();
+
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        userId = prefs.getInt(KEY_USER_ID, -1);
 
         TextView tvSelectedDate = view.findViewById(R.id.tvSelectedDate);
         ImageView ivPreviousDay = view.findViewById(R.id.ivPreviousDay);
@@ -77,21 +85,23 @@ public class HistoryDayFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
         tvSelectedDate.setText(sdf.format(currentDayMillis));
 
-        int[] hourlyIntake = db.getHourlyIntakeForDay(currentDayMillis);
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        for (int i = 0; i < hourlyIntake.length; i++) {
-            entries.add(new BarEntry(i, hourlyIntake[i]));
+        if (userId != -1) {
+            int[] hourlyIntake = db.getHourlyIntakeForDay(userId, currentDayMillis);
+            ArrayList<BarEntry> entries = new ArrayList<>();
+            for (int i = 0; i < hourlyIntake.length; i++) {
+                entries.add(new BarEntry(i, hourlyIntake[i]));
+            }
+
+            BarDataSet dataSet = new BarDataSet(entries, "Hourly Water Intake");
+            dataSet.setColor(ContextCompat.getColor(getContext(), R.color.light_blue));
+            dataSet.setDrawValues(false);
+
+            BarData barData = new BarData(dataSet);
+            barData.setBarWidth(0.6f);
+
+            barChart.setData(barData);
+            barChart.invalidate(); // refresh
         }
-
-        BarDataSet dataSet = new BarDataSet(entries, "Hourly Water Intake");
-        dataSet.setColor(ContextCompat.getColor(getContext(), R.color.light_blue));
-        dataSet.setDrawValues(false);
-
-        BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.6f);
-
-        barChart.setData(barData);
-        barChart.invalidate(); // refresh
     }
 
     private String[] getHours() {

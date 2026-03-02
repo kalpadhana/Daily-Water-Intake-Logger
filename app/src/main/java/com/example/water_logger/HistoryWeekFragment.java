@@ -1,5 +1,7 @@
 package com.example.water_logger;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,10 @@ public class HistoryWeekFragment extends Fragment {
 
     private DatabaseHelper db;
     private long currentDayMillis;
+    private int userId;
+
+    private static final String PREFS_NAME = "WaterLoggerPrefs";
+    private static final String KEY_USER_ID = "userId";
 
     @Nullable
     @Override
@@ -33,6 +39,9 @@ public class HistoryWeekFragment extends Fragment {
 
         db = new DatabaseHelper(getContext());
         currentDayMillis = System.currentTimeMillis();
+
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        userId = prefs.getInt(KEY_USER_ID, -1);
 
         TextView tvDateRange = view.findViewById(R.id.tvDateRange);
         BarChart barChart = view.findViewById(R.id.barChartWeek);
@@ -72,21 +81,23 @@ public class HistoryWeekFragment extends Fragment {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d", Locale.getDefault());
         tvDateRange.setText(String.format(Locale.getDefault(), "%s - %s, %d", sdf.format(startOfWeek), sdf.format(endOfWeek), calendar.get(Calendar.YEAR)));
 
-        int[] dailyIntake = db.getDailyIntakeForWeek(currentDayMillis);
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        for (int i = 0; i < dailyIntake.length; i++) {
-            entries.add(new BarEntry(i, dailyIntake[i]));
+        if (userId != -1) {
+            int[] dailyIntake = db.getDailyIntakeForWeek(userId, currentDayMillis);
+            ArrayList<BarEntry> entries = new ArrayList<>();
+            for (int i = 0; i < dailyIntake.length; i++) {
+                entries.add(new BarEntry(i, dailyIntake[i]));
+            }
+
+            BarDataSet dataSet = new BarDataSet(entries, "Daily Water Intake");
+            dataSet.setColor(ContextCompat.getColor(getContext(), R.color.light_blue));
+            dataSet.setDrawValues(false);
+
+            BarData barData = new BarData(dataSet);
+            barData.setBarWidth(0.6f);
+
+            barChart.setData(barData);
+            barChart.invalidate(); // refresh
         }
-
-        BarDataSet dataSet = new BarDataSet(entries, "Daily Water Intake");
-        dataSet.setColor(ContextCompat.getColor(getContext(), R.color.light_blue));
-        dataSet.setDrawValues(false);
-
-        BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.6f);
-
-        barChart.setData(barData);
-        barChart.invalidate(); // refresh
     }
 
     private String[] getWeekDays() {

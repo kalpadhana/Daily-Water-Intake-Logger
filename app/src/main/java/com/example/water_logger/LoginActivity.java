@@ -2,6 +2,7 @@ package com.example.water_logger;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -23,6 +24,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 9001;
     private static final String TAG = "LoginActivity";
+    private static final String PREFS_NAME = "WaterLoggerPrefs";
+    private static final String KEY_USER_ID = "userId";
 
     private GoogleSignInClient mGoogleSignInClient;
     private Button btnSignInWithGoogle;
@@ -64,9 +67,14 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            boolean validUser = db.checkUser(email, password);
+            int userId = db.getUserId(email, password);
 
-            if (validUser) {
+            if (userId != -1) {
+                // Save user ID to SharedPreferences
+                SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putInt(KEY_USER_ID, userId);
+                editor.apply();
+
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(LoginActivity.this, GetStartedActivity.class);
                 startActivity(i);

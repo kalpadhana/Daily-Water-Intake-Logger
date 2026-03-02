@@ -4,14 +4,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
@@ -25,9 +22,11 @@ public class DashboardActivity extends AppCompatActivity {
     private int targetMl;
     private int currentMl = 0;
     private DatabaseHelper db;
+    private int userId;
 
     private static final String PREFS_NAME = "WaterLoggerPrefs";
     private static final String KEY_TARGET_ML = "targetMl";
+    private static final String KEY_USER_ID = "userId";
 
     private final ActivityResultLauncher<Intent> drinkActivityLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -46,7 +45,17 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        targetMl = prefs.getInt(KEY_TARGET_ML, 2000); // Load the saved goal, default to 2000
+        userId = prefs.getInt(KEY_USER_ID, -1);
+
+        if (userId == -1) {
+            // Not logged in, redirect to LoginActivity
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
+        targetMl = prefs.getInt(KEY_TARGET_ML + "_" + userId, 2000); // Load user-specific goal
 
         db = new DatabaseHelper(this);
 
@@ -83,7 +92,6 @@ public class DashboardActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_today) {
-                // Already on the dashboard, do nothing
                 return true;
             } else if (itemId == R.id.navigation_history) {
                 startActivity(new Intent(DashboardActivity.this, HistoryActivity.class));
@@ -99,15 +107,17 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        targetMl = prefs.getInt(KEY_TARGET_ML, 2000); // Reload goal in case it was changed elsewhere
-        currentMl = db.getTodayTotalIntake();
-        updateUI();
+        if (userId != -1) {
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            targetMl = prefs.getInt(KEY_TARGET_ML + "_" + userId, 2000);
+            currentMl = db.getTodayTotalIntake(userId);
+            updateUI();
+        }
     }
 
     private void addMl(int add) {
-        db.addWaterRecord(add); // Save the record
-        currentMl = db.getTodayTotalIntake(); // Reload from database
+        db.addWaterRecord(userId, add);
+        currentMl = db.getTodayTotalIntake(userId);
         updateUI();
         checkIfGoalCompleted();
     }
@@ -118,7 +128,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         int remaining = Math.max(targetMl - currentMl, 0);
         tvRemaining.setText(getString(R.string.remaining_ml, remaining));
-
         tvTargetMl.setText(getString(R.string.target_ml_format, targetMl));
 
         int percent = 0;
@@ -147,9 +156,8 @@ public class DashboardActivity extends AppCompatActivity {
                     int newGoal = Integer.parseInt(goalStr);
                     if (newGoal > 0) {
                         targetMl = newGoal;
-                        // Save the new goal
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-                        editor.putInt(KEY_TARGET_ML, newGoal);
+                        editor.putInt(KEY_TARGET_ML + "_" + userId, newGoal);
                         editor.apply();
 
                         updateUI();
@@ -162,13 +170,12 @@ public class DashboardActivity extends AppCompatActivity {
         });
 
         dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
 
     private void checkIfGoalCompleted() {
-        if (currentMl >= targetMl && !db.isDayCompleted()) {
-            db.markDayAsCompleted();
+        if (currentMl >= targetMl && !db.isDayCompleted(userId)) {
+            db.markDayAsCompleted(userId);
             showGoalCompletedDialog();
         }
     }
