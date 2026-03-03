@@ -8,8 +8,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.water_logger.TargetUpdateBus;
 
 public class MeActivity extends AppCompatActivity {
 
@@ -17,12 +19,22 @@ public class MeActivity extends AppCompatActivity {
     private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
     private static final String KEY_USER_ID = "userId"; // saved at login
-    private static final String KEY_TARGET_ML = "targetMl"; // base key, Dashboard uses KEY_TARGET_ML + "_" + userId
 
     private DatabaseHelper db;
     private int userId = -1;
     private TextView tvBigWater;
     private TextView tvWaterTarget;
+
+    private final TargetUpdateBus.Listener targetUpdateListener = new TargetUpdateBus.Listener() {
+        @Override
+        public void onTargetUpdated(int updatedUserId, int newTarget) {
+            if (updatedUserId == userId && newTarget > 0) {
+                runOnUiThread(() -> {
+                    if (tvWaterTarget != null) tvWaterTarget.setText(getString(R.string.today_target_format, newTarget));
+                });
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +109,14 @@ public class MeActivity extends AppCompatActivity {
         super.onResume();
         // Refresh water values in case they changed elsewhere
         updateWaterDisplay();
+        // register in-app bus listener
+        TargetUpdateBus.register(targetUpdateListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        TargetUpdateBus.unregister(targetUpdateListener);
     }
 
     private void updateWaterDisplay() {
@@ -106,9 +126,8 @@ public class MeActivity extends AppCompatActivity {
             int currentMl = db.getTodayTotalIntake(userId);
             tvBigWater.setText(getString(R.string.today_current_format, currentMl));
 
-            // update target if stored per-user
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            int target = prefs.getInt(KEY_TARGET_ML + "_" + userId, 2000);
+            // update target from DB (not SharedPreferences) to stay consistent
+            int target = db.getUserTarget(userId);
             if (tvWaterTarget != null) tvWaterTarget.setText(getString(R.string.today_target_format, target));
         } else {
             // fallback to static resource

@@ -44,4 +44,5 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.google.android.gms:play-services-auth:21.5.1")
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
 }

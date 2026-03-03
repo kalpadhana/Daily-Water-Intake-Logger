@@ -181,16 +181,18 @@
                     android:layout_marginBottom="24dp"
                     android:text="@string/register_terms" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRegister"
                     android:layout_width="match_parent"
                     android:layout_height="60dp"
-                    android:background="@drawable/register_button_background"
                     android:text="@string/register_button"
                     android:textAllCaps="false"
                     android:textColor="@android:color/white"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:backgroundTint="#0B5FFF"
+                    app:rippleColor="#CCFFFFFF"
+                    app:cornerRadius="16dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"

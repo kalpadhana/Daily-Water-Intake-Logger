@@ -68,7 +68,7 @@
     <string name="username">Username</string>
     <string name="user_email">user@example.com</string>
     <string name="email_icon">Email icon</string>
-    <string name="today_label">Today</string>
+    <string name="today_label">  Today</string>
     <string name="today_water_value">100 ml / 2000 ml</string>
     <string name="today_water">Today: 100 ml / 2000 ml</string>
     <string name="today_current">100 ml</string>

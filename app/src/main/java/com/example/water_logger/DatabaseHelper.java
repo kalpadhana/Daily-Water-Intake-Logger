@@ -14,7 +14,7 @@ import java.util.Locale;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "WaterApp.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 9; // bumped to 9 to add target column to water_records
 
     // Users table
     private static final String TABLE_USERS = "users";
@@ -23,6 +23,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_EMAIL = "email";
     private static final String COLUMN_PHONE = "phone";
     private static final String COLUMN_PASSWORD = "password";
+    private static final String COLUMN_TARGET_ML = "target_ml"; // per-user target
 
     // Water records table
     private static final String TABLE_WATER_RECORDS = "water_records";
@@ -31,6 +32,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_TIMESTAMP = "timestamp";
     private static final String COLUMN_AMOUNT = "amount";
     private static final String COLUMN_RECORD_DATE = "date";
+    private static final String COLUMN_RECORD_TARGET = "target"; // snapshot of user target when record created
 
     // Daily Summary table
     private static final String TABLE_DAILY_SUMMARY = "daily_summary";
@@ -53,7 +55,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_NAME + " TEXT, "
                 + COLUMN_EMAIL + " TEXT UNIQUE, "
                 + COLUMN_PHONE + " TEXT, "
-                + COLUMN_PASSWORD + " TEXT)";
+                + COLUMN_PASSWORD + " TEXT, "
+                + COLUMN_TARGET_ML + " INTEGER DEFAULT 2000" + ")";
         db.execSQL(CREATE_USERS_TABLE);
 
         String CREATE_WATER_RECORDS_TABLE = "CREATE TABLE " + TABLE_WATER_RECORDS + " ("
@@ -61,7 +64,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + COLUMN_USER_ID + " INTEGER, "
                 + COLUMN_TIMESTAMP + " INTEGER, "
                 + COLUMN_AMOUNT + " INTEGER, "
-                + COLUMN_RECORD_DATE + " TEXT)";
+                + COLUMN_RECORD_DATE + " TEXT, "
+                + COLUMN_RECORD_TARGET + " INTEGER DEFAULT 2000)";
         db.execSQL(CREATE_WATER_RECORDS_TABLE);
 
         String CREATE_DAILY_SUMMARY_TABLE = "CREATE TABLE " + TABLE_DAILY_SUMMARY + " ("
@@ -77,11 +81,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS water_intake");
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_WATER_RECORDS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DAILY_SUMMARY);
-        onCreate(db);
+        // If upgrading from versions older than 8, add the new target_ml column to users
+        if (oldVersion < 8) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_USERS + " ADD COLUMN " + COLUMN_TARGET_ML + " INTEGER DEFAULT 2000");
+            } catch (Exception ignored) {
+            }
+        }
+        // If upgrading from versions older than 9, add the new target column to water_records
+        if (oldVersion < 9) {
+            try {
+                db.execSQL("ALTER TABLE " + TABLE_WATER_RECORDS + " ADD COLUMN " + COLUMN_RECORD_TARGET + " INTEGER DEFAULT 2000");
+            } catch (Exception ignored) {
+            }
+        }
+
+        // Keep existing drop/create logic for other structural upgrades
+        if (oldVersion < 7) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+            db.execSQL("DROP TABLE IF EXISTS water_intake");
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WATER_RECORDS);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_DAILY_SUMMARY);
+            onCreate(db);
+        }
     }
 
     // ---------- Users ----------
@@ -92,6 +114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_EMAIL, email);
         values.put(COLUMN_PHONE, phone);
         values.put(COLUMN_PASSWORD, password);
+        // target_ml will default to 2000 if not provided
         long result = db.insert(TABLE_USERS, null, values);
         return result != -1;
     }
@@ -116,6 +139,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return db.rawQuery("SELECT " + COLUMN_NAME + ", " + COLUMN_EMAIL + " FROM " + TABLE_USERS + " WHERE " + COLUMN_ID + "=?", new String[]{String.valueOf(userId)});
     }
 
+    // New: get/set per-user target
+    public int getUserTarget(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT " + COLUMN_TARGET_ML + " FROM " + TABLE_USERS + " WHERE " + COLUMN_ID + "=?", new String[]{String.valueOf(userId)});
+        int target = 2000;
+        if (cursor.moveToFirst()) {
+            try {
+                target = cursor.getInt(0);
+            } catch (Exception ignored) {
+            }
+        }
+        cursor.close();
+        return target;
+    }
+
+    public void setUserTarget(int userId, int targetMl) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TARGET_ML, targetMl);
+        db.update(TABLE_USERS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(userId)});
+    }
+
     // ---------- Water Records ----------
     public void addWaterRecord(int userId, int amount) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -127,6 +172,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_TIMESTAMP, ts);
         values.put(COLUMN_AMOUNT, amount);
         values.put(COLUMN_RECORD_DATE, dateStr);
+        // capture the user's target at the time of the record
+        int userTarget = getUserTarget(userId);
+        values.put(COLUMN_RECORD_TARGET, userTarget);
         db.insert(TABLE_WATER_RECORDS, null, values);
     }
 

@@ -88,6 +88,9 @@ public class LoginActivity extends AppCompatActivity {
                 editor.putInt(KEY_USER_ID, userId);
                 editor.putString(KEY_USERNAME, username);
                 editor.putString(KEY_EMAIL, userEmail);
+                // also load per-user target from DB and save to prefs for compatibility
+                int userTarget = db.getUserTarget(userId);
+                editor.putInt("targetMl_" + userId, userTarget);
                 editor.apply();
 
                 Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT).show();

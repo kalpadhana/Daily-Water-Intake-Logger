@@ -55,9 +55,9 @@ public class DashboardActivity extends AppCompatActivity {
             return;
         }
 
-        targetMl = prefs.getInt(KEY_TARGET_ML + "_" + userId, 2000); // Load user-specific goal
-
         db = new DatabaseHelper(this);
+        // Load per-user target from DB (defaults to 2000 if not present)
+        targetMl = db.getUserTarget(userId);
 
         waterView = findViewById(R.id.waterView);
         tvRemaining = findViewById(R.id.tvRemaining);
@@ -108,8 +108,8 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (userId != -1) {
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            targetMl = prefs.getInt(KEY_TARGET_ML + "_" + userId, 2000);
+            // reload values from DB in case target or today's intake changed
+            targetMl = db.getUserTarget(userId);
             currentMl = db.getTodayTotalIntake(userId);
             updateUI();
         }
@@ -156,9 +156,11 @@ public class DashboardActivity extends AppCompatActivity {
                     int newGoal = Integer.parseInt(goalStr);
                     if (newGoal > 0) {
                         targetMl = newGoal;
-                        SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
-                        editor.putInt(KEY_TARGET_ML + "_" + userId, newGoal);
-                        editor.apply();
+                        // save per-user target into the database
+                        db.setUserTarget(userId, newGoal);
+
+                        // notify other screens (MeActivity) via in-app bus
+                        TargetUpdateBus.notifyTargetUpdated(userId, newGoal);
 
                         updateUI();
                         dialog.dismiss();
