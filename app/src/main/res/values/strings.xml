@@ -1,35 +1,16 @@
 <resources>
     <string name="app_name">Water_Logger</string>
-    <string name="good_day">Good day 👋</string>
-    <string name="stay_hydrated">Stay Hydrated!!</string>
-    <string name="target">Target</string>
-    <string name="target_ml">2000 ml</string>
-    <string name="target_percent">0%</string>
-    <string name="target_ml_format">%d ml</string>
-    <string name="target_percent_format">%d%% done</string>
-    <string name="next_reminder">Next Reminder</string>
-    <string name="reminder_time">20:00</string>
-    <string name="reminder_left">1h 15m left</string>
-    <string name="remaining_ml">%d ml remaining</string>
-    <string name="add_150ml">+150 ml</string>
-    <string name="add_250ml">+250 ml</string>
-    <string name="add_300ml">+300 ml</string>
-    <string name="drink">DRINK</string>
-    <string name="daily_goal">Daily Goal</string>
-    <string name="cancel">Cancel</string>
+
+    <!-- General Actions -->
     <string name="save">Save</string>
-    <string name="drink_suggestion">Drink 200-300 ml of water each time to stay well-hydrated.</string>
-    <string name="drink_label">water amount</string>
-    <string name="ml_unit">ml</string>
-    <string name="add_drink">+ DRINK</string>
-    <string name="close_button">Close button</string>
-    <string name="water_bottle_image">Water bottle image</string>
-    <string name="enter_water_amount">Enter water amount</string>
-    <string name="default_water_amount">200</string>
+    <string name="cancel">Cancel</string>
+    <string name="close">Close</string>
     <string name="ml">ml</string>
     <string name="drink_button">+ DRINK</string>
     <string name="drink_now">DRINK NOW</string>
 
+    <!-- Login Screen -->
+    <string name="login_app_name">Water Tracker</string>
     <string name="login_welcome_back">Welcome Back</string>
     <string name="login_subtitle">Stay hydrated and track your daily water intake</string>
     <string name="login_email_hint">Email</string>
@@ -38,14 +19,22 @@
     <string name="login_button_text">Login</string>
     <string name="login_or_divider">OR</string>
     <string name="login_google_button_text">Sign in with Google</string>
-    <string name="login_no_account">Don\'t have an account?</string>
+    <string name="login_no_account">Don\'t have an account? </string>
     <string name="login_sign_up">Sign Up</string>
-    <string name="login_app_name">Water Tracker</string>
     <string name="login_illustration_desc">Water-themed illustration</string>
     <string name="google_sign_in_welcome">Welcome, you have successfully signed in with Google!</string>
-    <string name="welcome_headline">Build a Healthy Habit — One Sip at a Time</string>
-    <string name="welcome_subtitle">Simple, clean and effective app keep your water intake right.</string>
-    <string name="welcome_fab_description">Next</string>
+
+    <!-- Register Screen -->
+    <string name="username">Username</string>
+    <string name="today_water_value_format">%1$d ml / %2$d ml</string>
+    <string name="today_current_format">%d ml</string>
+    <string name="today_target_format">/ %d ml</string>
+
+
+
+
+
+
 
     <string name="register_create_account">Create Account</string>
     <string name="register_subtitle">Sign up to get started</string>
@@ -64,32 +53,68 @@
     <string name="register_facebook_button_description">Sign in with Facebook</string>
     <string name="back_button_description">Back</string>
 
-    <string name="profile_picture">Profile picture</string>
-    <string name="username">Username</string>
+    <!-- Dashboard Screen -->
+    <string name="good_day">Good day 👋</string>
+    <string name="good_evening">Good Evening 👋</string>
+    <string name="stay_hydrated">Stay Hydrated!!</string>
+    <string name="target">Target</string>
+    <string name="target_ml_format">%d ml</string>
+    <string name="target_percent_format">%d%% done</string>
+    <string name="target_percent_reached">%d%% reached</string>
+    <string name="target_percent">0%</string>
+    <string name="next_reminder">Next Reminder</string>
+    <string name="reminder_time">20:00</string>
+    <string name="reminder_left">1h 15m left</string>
+    <string name="remaining_ml">%d ml remaining</string>
+    <string name="quick_add">QUICK ADD</string>
+    <string name="add_150">+150</string>
+    <string name="add_250">+250</string>
+    <string name="add_300">+300</string>
+    <string name="add_drink">+ DRINK</string>
+    <string name="water_drop_desc">Water drop icon</string>
+    <string name="notification_desc">Notifications</string>
+    <string name="sound_desc">Sound settings</string>
+    <string name="drink_suggestion">Drink 200-300ml of water each time to stay well-hydrated.</string>
+    <string name="water_icon_desc">Water drop icon</string>
+    <string name="close_button">Close button</string>
+    <string name="water_bottle_image">Water bottle image</string>
+    <string name="enter_water_amount">Enter water amount</string>
+    <string name="default_water_amount">200</string>
+
+    <!-- Profile (Me) Screen -->
     <string name="user_email">user@example.com</string>
     <string name="email_icon">Email icon</string>
-    <string name="today_label">Today</string>
-    <string name="today_water_value">100 ml / 2000 ml</string>
-    <string name="today_water_value_format">%1$d ml / %2$d ml</string>
-    <string name="today_water">Today: 100 ml / 2000 ml</string>
-    <string name="today_current">100 ml</string>
-    <string name="today_target">/ 2000 ml</string>
-    <string name="today_current_format">%d ml</string>
-    <string name="today_target_format">/ %d ml</string>
-    <string name="water_icon">Water icon</string>
-    <string name="water_hint">Keep going — you’re making progress</string>
-    <string name="logout">Log out</string>
-    <string name="quick_add">Quick add</string>
+    <string name="me_title">Me</string>
+    <string name="today_progress">Today\'s Progress</string>
+    <string name="daily_goal">Daily Goal</string>
+    <string name="today_intake">Today\'s Intake</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="reminder_settings">Reminder Settings</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="about_app">About App</string>
+    <string name="logout">Log Out</string>
+    <string name="logout_confirm_title">Are you sure?</string>
+    <string name="logout_confirm_message">You will be signed out of your account.</string>
     <string name="get_started_title">Begin Your Health\nJourney Today</string>
     <string name="get_started_description">Start building healthy habits today and transform your body, mind, and lifestyle.</string>
     <string name="get_started_button">Get Started</string>
-    <string name="info_icon">Info</string>
-    <string name="your_progress">Your Progress</string>
-    <string name="todays_intake">Today\'s Intake</string>
-    <string name="sample_today_value">1200 / 2000 ml</string>
-    <string name="barchart_image">Bar chart image</string>
+
+    <!-- Navigation -->
+    <string name="nav_today">Today</string>
+    <string name="nav_history">History</string>
+    <string name="nav_me">Me</string>
     <string name="welcome_background_desc">Decorative welcome background</string>
     <string name="welcome_card_title">Build a Healthy Habit — One Sip at a Time</string>
     <string name="welcome_card_subtitle">Simple, clean and effective app to keep your water intake right.</string>
     <string name="fab_next_desc">Next</string>
+    <string name="your_progress">Your Progress</string>
+    <string name="todays_intake">Today\'s Intake</string>
+    <string name="sample_today_value">1200 / 2000 ml</string>
+    <string name="barchart_image">Bar chart image</string>
+
+
+
+
+
+
 </resources>

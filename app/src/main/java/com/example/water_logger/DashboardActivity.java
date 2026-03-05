@@ -2,6 +2,7 @@ package com.example.water_logger;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,15 +15,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import java.util.Calendar;
 
 public class DashboardActivity extends AppCompatActivity {
 
     private WaterLevelView waterView;
-    private TextView tvRemaining, tvTargetMl, tvTargetPercent;
+    private TextView tvRemaining, tvTargetMl, tvTargetPercent, tvGreeting;
     private int targetMl;
     private int currentMl = 0;
     private DatabaseHelper db;
     private int userId;
+    private String userName = "";
 
     private static final String PREFS_NAME = "WaterLoggerPrefs";
     private static final String KEY_USER_ID = "userId";
@@ -47,7 +50,6 @@ public class DashboardActivity extends AppCompatActivity {
         userId = prefs.getInt(KEY_USER_ID, -1);
 
         if (userId == -1) {
-            // Not logged in, redirect to LoginActivity
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -55,25 +57,27 @@ public class DashboardActivity extends AppCompatActivity {
         }
 
         db = new DatabaseHelper(this);
-        // Archive yesterday summary if missing (stores whether previous day completed and the totals)
         db.archiveYesterdayIfMissing(userId);
-        // Load per-user target from DB (defaults to 2000 if not present)
         targetMl = db.getUserTarget(userId);
 
-        // If the DB returned the default (2000) or an invalid value (<=0), try to recover the user's
-        // previously saved target from SharedPreferences (saved at login). This guards against
-        // unexpected DB resets where the target may revert to 2000.
+        // Fetch User Name
+        Cursor cursor = db.getUserDetails(userId);
+        if (cursor != null && cursor.moveToFirst()) {
+            userName = cursor.getString(0); // Name is the first column
+            cursor.close();
+        }
+
         int prefKeyTarget = prefs.getInt("targetMl_" + userId, -1);
         if (prefKeyTarget > 0 && prefKeyTarget != targetMl) {
-            // restore pref value into DB and memory
             db.setUserTarget(userId, prefKeyTarget);
             targetMl = prefKeyTarget;
         }
 
         waterView = findViewById(R.id.waterView);
-        tvRemaining = findViewById(R.id.tvRemaining);
+        tvRemaining = findViewById(R.id.tvRemainingLabel);
         tvTargetMl = findViewById(R.id.tvTargetMl);
         tvTargetPercent = findViewById(R.id.tvTargetPercent);
+        tvGreeting = findViewById(R.id.tvGreeting);
 
         View targetCard = findViewById(R.id.target_card);
         View reminderCard = findViewById(R.id.reminder_card);
@@ -85,9 +89,9 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        Button btn150 = findViewById(R.id.btn150);
-        Button btn250 = findViewById(R.id.btn250);
-        Button btn300 = findViewById(R.id.btn300);
+        androidx.cardview.widget.CardView btn150 = findViewById(R.id.btn150);
+        androidx.cardview.widget.CardView btn250 = findViewById(R.id.btn250);
+        androidx.cardview.widget.CardView btn300 = findViewById(R.id.btn300);
         Button btnDrink = findViewById(R.id.btnDrink);
 
         btn150.setOnClickListener(v -> addMl(150));
@@ -119,12 +123,9 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         if (userId != -1) {
-            // archive yesterday again in case app resumed across midnight
             db.archiveYesterdayIfMissing(userId);
-            // reload values from DB in case target or today's intake changed
             targetMl = db.getUserTarget(userId);
 
-            // again attempt to recover user's target from SharedPreferences if DB shows default/invalid
             SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
             int prefKeyTarget = prefs.getInt("targetMl_" + userId, -1);
             if (prefKeyTarget > 0 && prefKeyTarget != targetMl) {
@@ -138,10 +139,8 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     private void addMl(int add) {
-        // If day already marked completed, ignore and inform user
         if (db.isDayCompleted(userId)) {
             Toast.makeText(this, "Daily goal already completed — additional entries ignored for today.", Toast.LENGTH_SHORT).show();
-            // refresh totals from DB just in case
             currentMl = db.getTodayTotalIntake(userId);
             updateUI();
             return;
@@ -166,6 +165,30 @@ public class DashboardActivity extends AppCompatActivity {
             percent = (int) ((currentMl * 100.0f) / targetMl);
         }
         tvTargetPercent.setText(getString(R.string.target_percent_format, percent));
+
+        // Update Greeting
+        updateGreeting();
+    }
+
+    private void updateGreeting() {
+        Calendar cal = Calendar.getInstance();
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        String greeting;
+
+        if (hour >= 5 && hour < 12) {
+            greeting = "Good Morning ☀️";
+        } else if (hour >= 12 && hour < 17) {
+            greeting = "Good Afternoon ☀️";
+        } else if (hour >= 17 && hour < 21) {
+            greeting = "Good Evening 🌙";
+        } else {
+            greeting = "Good Night 🌙";
+        }
+
+        if (!userName.isEmpty()) {
+            greeting += " " + userName;
+        }
+        tvGreeting.setText(greeting);
     }
 
     private void showSetGoalDialog() {
@@ -187,15 +210,12 @@ public class DashboardActivity extends AppCompatActivity {
                     int newGoal = Integer.parseInt(goalStr);
                     if (newGoal > 0) {
                         targetMl = newGoal;
-                        // save per-user target into the database
                         db.setUserTarget(userId, newGoal);
 
-                        // persist into SharedPreferences as well so it can be restored if needed
                         SharedPreferences.Editor editor = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
                         editor.putInt("targetMl_" + userId, newGoal);
                         editor.apply();
 
-                        // notify other screens (MeActivity) via in-app bus
                         TargetUpdateBus.notifyTargetUpdated(userId, newGoal);
 
                         updateUI();

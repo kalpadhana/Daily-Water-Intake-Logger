@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         waterView = findViewById(R.id.waterView);
-        tvRemaining = findViewById(R.id.tvRemaining);
+        tvRemaining = findViewById(R.id.tvRemainingLabel);
         tvTargetMl = findViewById(R.id.tvTargetMl);
         tvTargetPercent = findViewById(R.id.tvTargetPercent);
 
