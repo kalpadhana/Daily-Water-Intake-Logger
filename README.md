@@ -255,7 +255,7 @@ Daily-Water-Intake-Logger/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YourUsername/Daily-Water-Intake-Logger.git
+   git clone https://github.com/RifkyNazar/Daily-Water-Intake-Logger.git
    ```
 
 2. **Open in Android Studio**
@@ -284,7 +284,7 @@ Daily-Water-Intake-Logger/
 | Role | Name | Responsibilities |
 | :--- | :--- | :--- |
 | **Team Lead & Main Developer** | Kalpa Dhananjaya | Architecture, SQLite database, BCrypt logic, Dashboard & session management |
-| **Login & Register and Database Creation** | [Name] | Page creation, wave animation, validations, database handle |
+| **Login & Register and Database Creation** | Rifky Nazar] | Page creation, wave animation, validations, database handle |
 | **Logic Specialist** | [Name] | Reminder system, chart integration, history fragments, event bus |
 
 ---
@@ -314,4 +314,5 @@ Fix: Resolve Reminder constructor mismatch in DatabaseHelper
 
 ---
 
-*Developed for academic purposes — ICT3214 Mobile Application Development.* 🌊
+📄 License
+This project is developed for academic purposes as part of the ICT3214 — Mobile Application Development module. 🌊
