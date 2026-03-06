@@ -2,8 +2,30 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Water_Logger" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="fontFamily">@font/poppins</item>
     </style>
 
     <style name="Theme.Water_Logger" parent="Base.Theme.Water_Logger" />
+
+    <style name="CircleShape">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Text appearances for Me screen -->
+    <style name="TextAppearance.Me.Title" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:textColor">#0B1B3F</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Me.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/poppins</item>
+        <item name="android:textColor">#0B1B3F</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
 </resources>

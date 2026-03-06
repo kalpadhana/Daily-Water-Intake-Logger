@@ -4,9 +4,7 @@ plugins {
 
 android {
     namespace = "com.example.water_logger"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.water_logger"
@@ -41,4 +39,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("com.google.android.gms:play-services-auth:21.5.1")
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
+    implementation(libs.jbcrypt)
 }

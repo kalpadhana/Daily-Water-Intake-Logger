@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_drink_gradient"
+    tools:context=".DrinkActivity">
+
+    <!-- Close button (kept outside scroll area so it's always visible) -->
+    <ImageView
+        android:id="@+id/ivClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:padding="10dp"
+        android:background="@drawable/bg_icon_circle"
+        android:contentDescription="@string/close_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
+        app:tint="#0B1B3F" />
+
+    <!-- Scrollable content sits between the close button and the bottom Drink button -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/ivClose"
+        app:layout_constraintBottom_toTopOf="@+id/btnDrink"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="18dp"
+            android:paddingBottom="24dp">
+
+            <!-- Suggestion Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSuggestion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="14dp"
+                    android:gravity="center_vertical"
+                    android:background="@drawable/bg_suggestion_card">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        app:srcCompat="@android:drawable/ic_dialog_info"
+                        app:tint="#1D4EFF" />
+
+                    <TextView
+                        android:id="@+id/tvSuggestion"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/drink_suggestion"
+                        android:textColor="#23345D"
+                        android:textSize="14sp"
+                        android:lineSpacingExtra="2dp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Cup illustration (keeps original size but can scroll if needed) -->
+            <ImageView
+                android:id="@+id/ivCup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:contentDescription="@string/water_bottle_image"
+                android:adjustViewBounds="true"
+                android:scaleType="centerInside"
+                android:src="@drawable/bgg" />
+
+            <!-- Amount container -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="12dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:background="@drawable/bg_amount_pill">
+
+                    <EditText
+                        android:id="@+id/etWaterAmount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@android:color/transparent"
+                        android:hint="@string/enter_water_amount"
+                        android:inputType="number"
+                        android:autofillHints=""
+                        android:text="@string/default_water_amount"
+                        android:textColor="#0B1B3F"
+                        android:textColorHint="#7B8BB8"
+                        android:textSize="46sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:maxLines="1" />
+
+                    <TextView
+                        android:id="@+id/tvMl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:text="@string/ml"
+                        android:textColor="#1D4EFF"
+                        android:textSize="22sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Drink button anchored to bottom so it's always visible -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnDrink"
+        android:layout_width="0dp"
+        android:layout_height="58dp"
+        android:layout_marginStart="26dp"
+        android:layout_marginEnd="26dp"
+        android:layout_marginBottom="26dp"
+        android:text="@string/drink_button"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        app:cornerRadius="18dp"
+        app:backgroundTint="#1D4EFF"
+        app:rippleColor="#CCFFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
